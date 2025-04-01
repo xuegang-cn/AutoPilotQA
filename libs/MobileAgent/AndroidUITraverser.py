@@ -316,10 +316,6 @@ class AndroidUITraverser:
     def operate_element_based_on_type(self, element):
         """根据元素类型执行相应操作"""
         element_info = element.info
-        try:
-            element.scroll_to()
-        except Exception as e:
-            print("cant scroll")
 
         try:
             class_name = element_info['className']
@@ -329,11 +325,7 @@ class AndroidUITraverser:
 
             # 按钮类元素
             if class_name in ['android.widget.Button', 'android.widget.ImageButton']:
-                if element.click_exists():
-                    print(f"点击按钮: ")
-                    element.click()
-                else:
-                    print(f"按钮不可点击: ")
+                element.click()
 
             # 输入框
             elif class_name == 'android.widget.EditText':
@@ -648,7 +640,7 @@ class AndroidUITraverser:
         当前用activity取代  后续在考虑fragement 处理方式"""
         self.d.app_stop_all()
         self.d.press('home')
-        self.d.app_start(current.split('/')[0],current.split('/').split('/')[1])
+        self.d.app_start(current.split('/')[0],current.split('/')[1])
         time.sleep(3)
         self.handle_swipe_with_times(swipe_count)
         return self.get_current_window()
