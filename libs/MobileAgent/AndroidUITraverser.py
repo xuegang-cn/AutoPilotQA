@@ -363,10 +363,10 @@ class AndroidUITraverser:
             elif class_name == 'androidx.recyclerview.widget.RecyclerView':
                 self._handle_recyclerview(element)
             # 其他可点击元素
-            elif element_info.get('clickable', False):
+            elif element.info['clickable']:
                 print(f"点击元素: ")
                 element.click()
-            elif element_info.get('longClickable', False):
+            elif element_info['longClickable']:
                 print(f"长击元素: ")
                 element.long_click()
             time.sleep(0.3)  # 操作间隔
@@ -505,8 +505,8 @@ class AndroidUITraverser:
         """生成元素唯一签名"""
 
         element_id = self.get_element_identifier(element)
-        page_signature = self.get_page_signature()
-        return f"{page_signature}:{element_id}"
+        current_window = self.get_current_window()
+        return f"{current_window}:{element_id}"
 
     def get_element_identifier(self, element):
         """获取元素唯一标识"""
@@ -636,8 +636,8 @@ class AndroidUITraverser:
         return self.get_current_window()
 
     def reset_to_before_window(self,current,swipe_count):
-        """在异常情况时重置到操作元素前环境，最好的做法是记忆元素操作路径来恢复环境，缺点是在多层操作元素时太耗时，
-        当前用activity取代  后续在考虑fragement 处理方式"""
+        """在异常情况时重置到操作元素前环境，最好的做法是记忆元素操作路径来恢复环境，缺点是在多层操作元素时会耗时太久，
+        当前用activity取代  后续补充fragement 处理方式"""
         self.d.app_stop_all()
         self.d.press('home')
         self.d.app_start(current.split('/')[0],current.split('/')[1])
@@ -682,12 +682,13 @@ class AndroidUITraverser:
             if len(elements)==0:
                 continue
             for element in elements:
+                element_signature=self.get_element_signature(element)
                 if element not in self.visited_elements:
-                    self.visited_elements.add(element)
+                    self.visited_elements.add(element_signature)
                     self.operate_with_recovery(element, current_depth,current_swipe_count)
                 else:
                     print("element operate already")
-
+                continue
             self.handle_swipe_with_times(1)
             current_swipe_count = current_swipe_count + 1
             after=self.get_page_signature()
@@ -773,7 +774,7 @@ if __name__ == '__main__':
         output_dir='../ui_traversal_output',
         test_texts=test_texts,
         app_identifier='com.android.settings',
-        max_depth=5
+        max_depth=3 #配置遍历层数
 
 
     )
