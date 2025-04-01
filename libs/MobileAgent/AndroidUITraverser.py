@@ -665,11 +665,10 @@ class AndroidUITraverser:
                 time.sleep(1)
             if self.get_current_window() != before_window:
                 self.reset_to_before_window(before_window, current_swipe_count)
-            return True
         except Exception as e:
             print(f"操作失败: {str(e)}")
             self.reset_to_before_window(before_window,current_swipe_count)
-            return False
+
 
     def handle_current_level(self, current_depth):
         """处理当前层级的所有元素"""
@@ -685,8 +684,10 @@ class AndroidUITraverser:
             for element in elements:
                 if element not in self.visited_elements:
                     self.visited_elements.add(element)
-                    if not self.operate_with_recovery(element, current_depth,current_swipe_count):
-                        continue
+                    self.operate_with_recovery(element, current_depth,current_swipe_count)
+                else:
+                    print("element operate already")
+
             self.handle_swipe_with_times(1)
             current_swipe_count = current_swipe_count + 1
             after=self.get_page_signature()
