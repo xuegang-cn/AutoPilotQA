@@ -609,6 +609,10 @@ class AndroidUITraverser:
                 else:
                     print("element operate already")
                     continue
+                print("当前元素深度遍历结束开始下一个元素深度遍历")
+                print(current_depth)
+                if current_depth==self.max_depth:
+                    current_depth=1 #下个元素操作需重制元素初始化深度
             before=self.get_current_window()
             self.handle_swipe_with_times(1)
             current_swipe_count = current_swipe_count + 1

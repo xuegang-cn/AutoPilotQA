@@ -10,7 +10,8 @@ def get_args():
     parser.add_argument("--out", type=str, help="output dir")
     args = parser.parse_args()
     return args
-
+def excute_LLM_test_task():
+    pass
 if __name__ == '__main__':
     # 配置测试文本
     args = get_args()
