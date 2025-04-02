@@ -577,7 +577,6 @@ class AndroidUITraverser:
     def operate_with_recovery(self,element, current_depth,current_swipe_count):
         """递归操作元素，操作完回到操作前页面"""
         before_window = self.get_current_window()
-        origin_depth=current_depth
         try:
             print(f"\n[Depth {current_depth}] 操作元素: {element.info}")
 
@@ -587,9 +586,8 @@ class AndroidUITraverser:
 
             # 继续递归处理子元素
             if current_depth < self.max_depth:
-                current_depth=current_depth+1
-                self.handle_current_level(current_depth)
-            if self.get_current_window() != before_window:
+                self.handle_current_level(current_depth+1)
+            else:
                 self.reset_to_before_window(before_window, current_swipe_count)
         except Exception as e:
             print(f"操作失败: {str(e)}")
@@ -612,7 +610,7 @@ class AndroidUITraverser:
                     self.operate_with_recovery(element, current_depth,current_swipe_count)
                 else:
                     print("element operate already")
-                continue
+                    continue
             before=self.get_current_window()
             self.handle_swipe_with_times(1)
             current_swipe_count = current_swipe_count + 1

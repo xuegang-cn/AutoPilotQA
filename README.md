@@ -73,7 +73,10 @@ bot = AndroidUITraverser(
 # 自动执行遍历测试测试 
 main_window=bot.start_main_window()
 bot.handle_current_level(1) 
-
+# 截图标记
+<div align="center">
+  <img src="./image/Settingslabeled.png" alt="主界面截图" width="600">
+</div>
 # 分析测试报告 DOING
 test_report.show_summary()
 高级功能
