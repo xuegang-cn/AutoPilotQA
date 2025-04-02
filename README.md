@@ -63,15 +63,15 @@ from libs.MobileAgent.AndroidUITraverser import AndroidUITraverser
 
 # 初始化测试机器人
 bot = AndroidUITraverser(
-    app_identifier="com.android.settings",
-    max_depth=3,
-    device_serial="emulator-5554",
-    output_dir=‘report_dir’
+    app_identifier="com.android.settings",<br>
+    max_depth=3,<br>
+    device_serial="emulator-5554",<br>
+    output_dir=‘report_dir’<br>
 
 )
 
 # 自动执行遍历测试测试 
-main_window=bot.start_main_window()
+main_window=bot.start_main_window()<br>
 bot.handle_current_level(1) 
 # 截图标记
 <div align="center">
