@@ -212,7 +212,7 @@ class AndroidUITraverser:
             for text in random.sample(self.test_texts, min(2, len(self.test_texts))):  # 每个字段测试2个文本
                 try:
                     # 输入前记录状态
-                    self.dump_current_state(f'{prefix}_pre_input_{text}')
+                    #self.dump_current_state(f'{prefix}_pre_input_{text}')
 
                     # 执行输入
                     input_desc = self.perform_text_input(field, text)
@@ -224,7 +224,7 @@ class AndroidUITraverser:
                     actions.append(search_desc)
                     print(search_desc)
                     # 输入后记录状态
-                    self.dump_current_state(f'{prefix}_post_input_{text}')
+                    #self.dump_current_state(f'{prefix}_post_input_{text}')
 
                     # 返回上一状态
                     time.sleep(2)
@@ -239,78 +239,6 @@ class AndroidUITraverser:
 
         # 深度遍历
 
-    def traverse_app_with_depth(self, app_identifier=None, max_depth=3):
-        """
-        主遍历方法
-        :param app_identifier: 应用包名或名称 (可选)
-        :param max_depth: 最大遍历深度
-        """
-        #先回到home界面
-        self.d.press('home')
-        home_window=self.get_current_window()
-        #启动应用
-        if app_identifier:
-            if not self.start_app(app_identifier):
-                print(f"无法启动应用: {app_identifier}")
-                return
-            time.sleep(3)  # 等待应用启动
-        main_window = self.get_current_window() #第一层主界面
-        print("\n=== 广度遍历 ===")
-        self.get_all_interactable_elements() # dump 主界面所有可操作元素
-        need_swip=True
-        depth=1
-        swipe_count=0
-        while need_swip:
-            before=self.dump_current_state(self.get_page_signature())
-            for  element in self.get_all_interactable_elements() :
-                try:
-                    # 操作前记录
-                    print("准备操作 element:"+str(element.info))
-                    element_singnature = self.get_element_signature(element)
-                    before=self.get_current_window()
-                    if element not in self.visited_elements:
-                        self.visited_elements.add(element)
-                        self.operate_element_based_on_type(element)
-                    time.sleep(2) #进入二级界面
-                    for  child in self.get_all_interactable_elements():
-                            before = self.get_current_window()
-                            if child not in self.visited_elements:
-                                self.visited_elements.add(child)
-                                self.operate_element_based_on_type(child)
-                                self.dump_current_state(self.get_element_signature(child))
-                                time.sleep(2)
-                            if  before!=self.get_current_window():
-                                self.d.press('back')
-                                time.sleep(0.5)
-                    print(f" current element signature is " + element_singnature)
-                    after_window=self.get_current_window()
-                    print(f"after_window {after_window}" )
-                    self.dump_current_state(element_singnature)
-                    # 操作后窗口变化 回到主界面继续操作其他元素
-                    if after_window !=main_window:
-                        self.d.press('back')
-                        time.sleep(0.5)
-                except Exception as e:
-                    if self.get_current_window() != main_window and self.get_current_window()!=home_window:
-                        print(f"操作失败: {str(e)}")
-                        self.d.press('back')
-                        time.sleep(0.5)
-                    if  self.get_current_window()!=main_window:
-                        self.d.app_stop_all()
-                        self.d.press('home')
-                        self.start_app(app_identifier)
-                        time.sleep(3)
-                        for i in range(0,swipe_count):
-                            self.d.swipe(0.5, 0.8, 0.5, 0.2, duration=0.5)  # 从80%滑到20%
-                            time.sleep(1.5)  # 等待新内容加载
-                    continue
-            print("准备滑动查找空间")
-            self.d.swipe(0.5, 0.8, 0.5, 0.2, duration=0.5)  # 从80%滑到20%
-            time.sleep(1.5)  # 等待新内容加载
-            swipe_count=swipe_count+1
-            after_swipe=self.dump_current_state(self.get_page_signature())
-            if before==after_swipe:
-                break
 
 
     def operate_element_based_on_type(self, element):
@@ -627,6 +555,7 @@ class AndroidUITraverser:
         """重置测试环境到初始状态"""
         self.start_app(self.app_identifier)
         time.sleep(3)
+        return self.get_current_window()
     def reset_to_main_window(self):
         """重置测试环境到初始状态"""
         self.d.app_stop_all()
@@ -648,6 +577,7 @@ class AndroidUITraverser:
     def operate_with_recovery(self,element, current_depth,current_swipe_count):
         """递归操作元素，操作完回到操作前页面"""
         before_window = self.get_current_window()
+        origin_depth=current_depth
         try:
             print(f"\n[Depth {current_depth}] 操作元素: {element.info}")
 
@@ -657,12 +587,8 @@ class AndroidUITraverser:
 
             # 继续递归处理子元素
             if current_depth < self.max_depth:
-                self.handle_current_level(current_depth + 1)
-
-            # 操作后状态检查
-            if self.get_current_window() != before_window:
-                self.d.press('back')
-                time.sleep(1)
+                current_depth=current_depth+1
+                self.handle_current_level(current_depth)
             if self.get_current_window() != before_window:
                 self.reset_to_before_window(before_window, current_swipe_count)
         except Exception as e:
@@ -674,10 +600,8 @@ class AndroidUITraverser:
         """处理当前层级的所有元素"""
         need_swipe=True
         current_swipe_count=0
-
         print(f"\n{'=' * 20} 开始遍历深度 {current_depth} {'=' * 20}")
         while need_swipe and current_swipe_count <5:
-            before = self.get_page_signature()
             elements = self.get_all_interactable_elements()
             if len(elements)==0:
                 continue
@@ -689,6 +613,7 @@ class AndroidUITraverser:
                 else:
                     print("element operate already")
                 continue
+            before=self.get_current_window()
             self.handle_swipe_with_times(1)
             current_swipe_count = current_swipe_count + 1
             after=self.get_page_signature()
@@ -760,36 +685,7 @@ class AndroidUITraverser:
         else:
             print(text)
         print(Style.RESET_ALL)
-if __name__ == '__main__':
-    # 配置测试文本
-    test_texts = [
-        "测试", "自动化", "hello",
-        "12345", "搜索", "android",
-        "输入测试", "QA", "test"
-    ]
 
-    # 初始化遍历器
-    traverser = AndroidUITraverser(
-        device_serial='emulator-5554',  # 替换为你的设备序列号
-        output_dir='../ui_traversal_output',
-        test_texts=test_texts,
-        app_identifier='com.android.settings',
-        max_depth=3 #配置遍历层数
-
-
-    )
-
-    # 方式1: 直接遍历当前界面
-    # traverser.traverse_app(max_depth=2)
-
-    # 方式2: 通过包名启动并遍历
-    # traverser.traverse_app('com.android.settings', max_depth=2)
-
-    # 方式3: 通过应用名启动并遍历
-    #traverser.traverse_app_with_depth('com.android.settings', max_depth=2)
-    traverser.start_main_window()
-    traverser.handle_current_level(1)
-    print("\n遍历完成，输出保存在:", os.path.abspath(traverser.output_dir))
 
 
     #traverser.traverse_app('设置')  # 使用应用名称

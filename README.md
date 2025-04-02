@@ -3,7 +3,7 @@
 本项目是一个新的Android自动化测试框架，
 结合了大型语言模型（LLM）的强大能力与传统的自动化测试技术，
 打造了一个"智能测试机器人"。
-该框架能够自动生成测试数据、自动创建测试用例、自动执行测试并完成断言，
+该框架能够自动遍历元素、生成测试数据、自动创建测试用例、自动执行测试并完成断言，
 实现了从测试设计到执行的全流程自动化。
 
 核心特性
@@ -59,21 +59,22 @@ export LLM_API_KEY="your_api_key_here"
 基本使用
 python
 复制
-from auto_test_bot import AndroidTestBot
+from libs.MobileAgent.AndroidUITraverser import AndroidUITraverser
 
 # 初始化测试机器人
-bot = AndroidTestBot(
-    app_path="com.example.app",
-    device_name="emulator-5554"
+bot = AndroidUITraverser(
+    app_identifier="com.android.settings",
+    max_depth=3,
+    device_serial="emulator-5554",
+    output_dir=‘report_dir’
+
 )
 
-# 自动生成并执行测试
-test_report = bot.run_auto_test(
-    test_scenario="用户登录流程",
-    coverage_criteria=["正常登录","错误密码","空用户名"]
-)
+# 自动执行遍历测试测试 
+main_window=bot.start_main_window()
+bot.handle_current_level(1) 
 
-# 查看测试报告
+# 分析测试报告 DOING
 test_report.show_summary()
 高级功能
 自定义测试策略
@@ -97,7 +98,7 @@ pipeline {
     stages {
         stage('Auto Testing') {
             steps {
-                sh 'python -m auto_test_bot --app ${APK_PATH} --report junit'
+                sh 'python run.py --depth 3 --app com.android.settings --out report_dir'
             }
         }
     }
