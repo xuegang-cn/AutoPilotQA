@@ -381,7 +381,7 @@ class AndroidUITraverser:
 
         elements = []
         unique_elements = []
-        screenshot_path, ui_tree_path=self.dump_current_state(self.get_page_signature())
+        screenshot_path, ui_tree_path=self.dump_current_state("tr"+self.get_page_signature())
         for query in xpath_queries:
             try:
                 found = self.d.xpath(query).all()
@@ -417,7 +417,7 @@ class AndroidUITraverser:
                 continue
 
             filtered.append(elem)
-
+        print(f"ui元素{len(filtered)}")
         return filtered
 
     def get_page_signature(self) :
@@ -603,7 +603,7 @@ class AndroidUITraverser:
             elements = self.get_all_interactable_elements()
             for element in elements:
                 element_signature=self.get_element_signature(element)
-                if element not in self.visited_elements:
+                if element_signature not in self.visited_elements:
                     self.visited_elements.add(element_signature)
                     self.operate_with_recovery(element, current_depth,current_swipe_count)
                 else:
