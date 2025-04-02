@@ -601,8 +601,6 @@ class AndroidUITraverser:
         print(f"\n{'=' * 20} 开始遍历深度 {current_depth} {'=' * 20}")
         while need_swipe and current_swipe_count <5:
             elements = self.get_all_interactable_elements()
-            if len(elements)==0:
-                continue
             for element in elements:
                 element_signature=self.get_element_signature(element)
                 if element not in self.visited_elements:
@@ -630,7 +628,7 @@ class AndroidUITraverser:
             swipe_count=swipe_count+1
 
 
-    def draw_bbox_multi(self, img_path, output_path, elem_list, record_mode=False, dark_mode=False):
+    def draw_bbox_multi(self, img_path, output_path, elem_list, record_mode=True, dark_mode=False):
         """标记当前页面元素"""
         imgcv = cv2.imread(img_path)
         count = 1
@@ -643,7 +641,7 @@ class AndroidUITraverser:
                 if record_mode:
                     if elem.info['clickable'] :
                         color = (250, 0, 0)
-                    elif elem.info['focusabl'] :
+                    elif elem.info['focusable'] :
                         color = (0, 0, 250)
                     else:
                         color = (0, 250, 0)
