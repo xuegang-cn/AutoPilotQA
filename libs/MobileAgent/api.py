@@ -7,29 +7,29 @@ def encode_image(image_path):
 
 
 def inference_chat(chat, API_TOKEN):    
-    api_url = 'https://api.openai.com/v1/chat/completions'
+    api_url = 'https://api.deepseek.com/chat/completions'
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {API_TOKEN}"
     }
 
     data = {
-        "model": 'gpt-4-vision-preview',
-        "messages": [],
-        "max_tokens": 2048,
+        "model": 'deepseek-chat',
+        "messages": [
+            {"role": "system", "content": "You are a helpful assistant for android UI test"}
+        ],
+        "max_tokens": 8192,
     }
 
-    for role, content in chat:
-        data["messages"].append({"role": role, "content": content})
 
-    while 1:
-        try:
-            res = requests.post(api_url, headers=headers, json=data)
-            res = res.json()['choices'][0]['message']['content']
-        except:
-            print("Network Error:")
-            print(res)
-        else:
-            break
-    
+    data["messages"].append({"role": 'user', "content": chat})
+
+    try:
+        res = requests.post(api_url, headers=headers, json=data)
+        res = res.json()['choices'][0]['message']['content']
+    except:
+        print("Network Error:")
+        print(res)
+
     return res
+

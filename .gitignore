@@ -5,3 +5,5 @@
 *.ipr
 out/
 .idea_modules/
+config/
+debug.py
